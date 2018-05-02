@@ -797,15 +797,15 @@ void record_struct_record_location()
     {
         create_x2indirect_array(pointer, array, arr);
     }
-    else if (array->length <212)
+    else if (array->length <213)
     {
         into_x2indirect_array(pointer, array);
     }
-    else if (array->length == 212)
+    else if (array->length == 213)
     {
         create_x3indirect_array(pointer, array, arr);
     }
-    else if ((array->length - 212) % 100 == 0)
+    else if ((array->length - 213) % 100 == 0)
     {
         create_x3indirect_inode_array(pointer, array, arr);
     }
@@ -2017,15 +2017,15 @@ void like(int num)
         {
             create_x2indirect_like(pointer, tweet, arr);
         }
-        else if (tweet->length <212)
+        else if (tweet->length <213)
         {
             into_x2indirect_like(pointer, tweet);
         }
-        else if (tweet->length == 212)
+        else if (tweet->length == 213)
         {
             create_x3indirect_like(pointer, tweet, arr);
         }
-        else if ((tweet->length - 212) % 100 == 0)
+        else if ((tweet->length - 213) % 100 == 0)
         {
             create_x3indirect_inode_like(pointer, tweet, arr);
         }
@@ -3255,15 +3255,15 @@ void tweet_struct_record_location(int fcursor)
     {
         create_x2indirect_tweet_array(pointer, array, arr, fcursor);
     }
-    else if (array->length <212)
+    else if (array->length <213)
     {
         into_x2indirect_tweet_array(pointer, array, fcursor);
     }
-    else if (array->length == 212)
+    else if (array->length == 213)
     {
         create_x3indirect_tweet_array(pointer, array, arr, fcursor);
     }
-    else if ((array->length - 212) % 100 == 0)
+    else if ((array->length - 213) % 100 == 0)
     {
         create_x3indirect_inode_tweet_array(pointer, array, arr, fcursor);
     }
@@ -3497,7 +3497,7 @@ int tweet_array_memory_overflow_2x_indirect(int pointer, struct array *array, un
 }
 void tweet_array_into_array(struct array *array, int pointer, int fcursor)
 {
-	array->arr[array->length] = fcursor;
+    array->arr[array->length] = fcursor;
     array->length++;
     FILE * fp = fopen(fname, "r+b");
     fseek(fp, pointer, SEEK_SET);
