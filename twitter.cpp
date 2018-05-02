@@ -201,6 +201,7 @@ int max_tweetid();//used to find maximum tweetid in the file
 int bitvector_status(int num, unsigned char * array);//used to check waether num block is occupied or not
 int bit_vector_vacancy(int num, unsigned char *array);//checks for vacancy in bit vector
 void bitvector_clear(int num, unsigned char *array);//to clear the block
+void update_bitvector_block_status(unsigned char *arr, int num);//updates the block statuses in bitvector
 
 //Better UI experience with fontsize 16 in Maximised Console Window ;
 int main()
@@ -233,7 +234,7 @@ void create_file()
     FILE *fp;
     struct array *arr= (struct array *)malloc(sizeof(struct array));
     int i;
-    freespace_vector[0] = 15;
+    freespace_vector[0] = 30;
     for (i = 1; i <bitvectorbytes; i++)
     {
         freespace_vector[i] = 0;
@@ -619,14 +620,17 @@ char * get_password()
 int bit_vector_vacancy(int num, unsigned char *array)
 {
     int i=0,j=1;
-    if ((array[num] & j) == 0)
-    {
-        array[num] = array[num] | j;
-        FILE *fp = fopen(fname, "r+b");
-        fwrite(array, bitvectorbytes, 1, fp);
-        fclose(fp);
-        return num*8+i;
-    }
+	if (num % 100 != 0)
+	{
+		if ((array[num] & j) == 0)
+		{
+			array[num] = array[num] | j;
+			FILE *fp = fopen(fname, "r+b");
+			fwrite(array, bitvectorbytes, 1, fp);
+			fclose(fp);
+			return (num * 8 + i);
+		}
+	}
     for (i = 1; i < 8; i++)
     {
         j = j * 2;
@@ -636,11 +640,65 @@ int bit_vector_vacancy(int num, unsigned char *array)
             FILE *fp = fopen(fname, "r+b");
             fwrite(array, bitvectorbytes, 1, fp);
             fclose(fp);
-            return num * 8 + i;
+            return (num * 8 + i);
         }
+		
     }
     return 0;
 }
+int vacant_inode_area(unsigned char *arr)
+{
+	int i, j, k;
+	for (k = 0;k < 304;k++)
+	{
+		if (bitvector_status(k * 100*8, arr) == 0)
+		{
+			for (i = k * 100; i < k * 100 + 100; i++)
+			{
+				j = bit_vector_vacancy(i, arr);
+				if (j != 0)
+				{
+					update_bitvector_block_status(arr, k * 100);
+					return j;
+				}
+			}
+		}
+	}
+	return i;
+}
+void update_bitvector_block_status(unsigned char *arr, int num)
+{
+	int i, j, k = 1,l;
+	for (i = num; i < num + 100; i++)
+	{
+		if (i % 100 != 0)
+		{
+			j = bitvector_status(i*8, arr);
+			if (j == 0)
+			{
+				k = 0;
+				return;
+			}
+		}
+		for (l = 1;l < 8;l++)
+		{
+			j = bitvector_status((i*8)+l, arr);
+			if (j == 0)
+			{
+				k = 0;
+				return;
+			}
+		}
+	}
+	if (k == 1)
+	{
+		arr[num] = arr[num]||1;
+		FILE *fp = fopen(fname, "r+b");
+		fwrite(arr, bitvectorbytes, 1, fp);
+		fclose(fp);
+	}
+}
+
 int  loginrecord_into_file(struct record *re)
 {
     struct record *rec = (struct record *)malloc(sizeof(struct record));
@@ -656,13 +714,8 @@ int  loginrecord_into_file(struct record *re)
     }
     fread(arr, bitvectorbytes, 1, fp);
     fclose(fp);
-    for (i = 0; i < bitvectorbytes; i++)
-    {
-        j = bit_vector_vacancy(i, arr);
-        if (j != 0)
-            break;
-    }
-    if (i == bitvectorbytes)
+	j = vacant_inode_area(arr);
+    if (j == bitvectorbytes)
     {
         g(62, 19);
         printf("No memory in file\n");
@@ -3444,7 +3497,7 @@ int tweet_array_memory_overflow_2x_indirect(int pointer, struct array *array, un
 }
 void tweet_array_into_array(struct array *array, int pointer, int fcursor)
 {
-    array->arr[array->length] = fcursor;
+	array->arr[array->length] = fcursor;
     array->length++;
     FILE * fp = fopen(fname, "r+b");
     fseek(fp, pointer, SEEK_SET);
@@ -3647,19 +3700,7 @@ void create_x3indirect(int fcursor, struct record *rec,unsigned  char* arr)
     fwrite(rec, sizeof(struct record), 1, fp);
     fclose(fp);
 }
-int vacant_inode_area(unsigned char *arr)
-{
-    int i,j;
-    for (i = 0; i <bitvectorbytes; i++)
-    {
-        j = bit_vector_vacancy(i, arr);
-        if (j!=0)
-        {
-            return j;
-        }
-    }
-    return i;
-}
+
 void create_x3indirect_inode(int fcursor, struct record *rec,unsigned char* arr)
 {
     int i;
