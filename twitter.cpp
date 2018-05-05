@@ -1585,6 +1585,7 @@ void bitvector_clear(int num, unsigned char *array)
     k = (int)pow((int)2, (int)num2);
     k = 255 - k;
     array[num1] = array[num1] & k;
+    array[(num1/100)*100] = array[(num1 / 100) * 100] & 254;
     FILE *fp = fopen(fname, "r+b");
     fwrite(array, bitvectorbytes, 1, fp);
     fclose(fp);
