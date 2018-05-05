@@ -1693,6 +1693,7 @@ int parse_tweets_array_array(struct array *array,struct tweet * tweet, unsigned 
             }
         }
     }
+	return 0;
 }
 int parse_tweets_array_inode(struct array *array, struct tweet * tweet, unsigned char *arr, int num)
 {
@@ -1713,6 +1714,7 @@ int parse_tweets_array_inode(struct array *array, struct tweet * tweet, unsigned
             }
         }
     }
+	return 0;
 }
 int parse_tweets_array_1x_indirect(struct array *array,struct tweet *tweet, unsigned char *arr,int num)
 {
@@ -1738,6 +1740,7 @@ int parse_tweets_array_1x_indirect(struct array *array,struct tweet *tweet, unsi
             }
         }
     }
+	return 0;
 }
 int parse_tweets_array_2x_indirect(struct array *array, struct tweet *tweet, unsigned char *arr, int num)
 {
@@ -1772,6 +1775,7 @@ int parse_tweets_array_2x_indirect(struct array *array, struct tweet *tweet, uns
             }
         }
     }
+	return 0;
 }
 void display_usernames(int pointer)
 {
@@ -3498,7 +3502,7 @@ int tweet_array_memory_overflow_2x_indirect(int pointer, struct array *array, un
 }
 void tweet_array_into_array(struct array *array, int pointer, int fcursor)
 {
-    array->arr[array->length] = fcursor;
+	array->arr[array->length] = fcursor;
     array->length++;
     FILE * fp = fopen(fname, "r+b");
     fseek(fp, pointer, SEEK_SET);
